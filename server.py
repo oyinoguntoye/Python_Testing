@@ -11,6 +11,8 @@ def loadClubs():
 def loadCompetitions():
     with open('competitions.json') as comps:
          listOfCompetitions = json.load(comps)['competitions']
+         # BUG Fix: Avoid booking places in past competitions, filters out any competitions that were in the pass
+         listOfCompetitions = [c for c in listOfCompetitions if c['date'] >= datetime.today().strftime('%Y-%m-%d-%H:%M:%S')]
          return listOfCompetitions
 
 
