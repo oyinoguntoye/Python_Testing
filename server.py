@@ -28,9 +28,6 @@ def index():
 
 @app.route('/showSummary',methods=['POST'])
 def showSummary():
-    Feature/Implement-Points-Display-Board
-    club = [club for club in clubs if club['email'] == request.form['email']][0]
-    return render_template('welcome.html',club=club,competitions=competitions,clubs=clubs)
     try:
         club = [club for club in clubs if club['email'] == request.form['email']][0]
         return render_template('welcome.html',club=club,competitions=competitions,clubs=clubs)
@@ -38,7 +35,6 @@ def showSummary():
         # ERROR Fix: Entering a unknown email crashes the app, instead it now shows an error message prompting user to try again
         flash("Something went wrong-please try again")
         return render_template('index.html')
-    master
 
 
 @app.route('/book/<competition>/<club>')
