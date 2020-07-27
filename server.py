@@ -11,6 +11,8 @@ def loadClubs():
 def loadCompetitions():
     with open('competitions.json') as comps:
          listOfCompetitions = json.load(comps)['competitions']
+         # BUG Fix: Avoid booking places in past competitions, filters out any competitions that were in the pass
+         listOfCompetitions = [c for c in listOfCompetitions if c['date'] >= datetime.today().strftime('%Y-%m-%d-%H:%M:%S')]
          return listOfCompetitions
 
 
@@ -26,8 +28,17 @@ def index():
 
 @app.route('/showSummary',methods=['POST'])
 def showSummary():
+    Feature/Implement-Points-Display-Board
     club = [club for club in clubs if club['email'] == request.form['email']][0]
-    return render_template('welcome.html',club=club,competitions=competitions)
+    return render_template('welcome.html',club=club,competitions=competitions,clubs=clubs)
+    try:
+        club = [club for club in clubs if club['email'] == request.form['email']][0]
+        return render_template('welcome.html',club=club,competitions=competitions,clubs=clubs)
+    except:
+        # ERROR Fix: Entering a unknown email crashes the app, instead it now shows an error message prompting user to try again
+        flash("Something went wrong-please try again")
+        return render_template('index.html')
+    master
 
 
 @app.route('/book/<competition>/<club>')
@@ -45,7 +56,16 @@ def book(competition,club):
 def purchasePlaces():
     competition = [c for c in competitions if c['name'] == request.form['competition']][0]
     club = [c for c in clubs if c['name'] == request.form['club']][0]
-    placesRequired = int(request.form['places'])
+    # BUG: Clubs shouldn't be able to book more than 12 places per competition
+    if int(request.form['places']) > 12:
+        flash("You can book no more than 12 places. Try Again.")
+        return render_template('welcome.html', club=club, competitions=competitions,clubs=clubs)
+    # BUG: Clubs should not be able to use more than their available points
+    elif int(request.form['places']) > int(club['points']):
+        flash("You cannot redeem more points than you available. Try Again.")
+        return render_template('welcome.html', club=club, competitions=competitions,clubs=clubs)
+    else:
+        placesRequired = int(request.form['places'])
     competition['numberOfPlaces'] = int(competition['numberOfPlaces'])-placesRequired
     # Updated: 3 points per place rather than 1 point per place
     club['points'] = int(club['points'])-3*placesRequired
