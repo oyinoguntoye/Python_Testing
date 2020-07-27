@@ -67,8 +67,8 @@ def purchasePlaces():
     else:
         placesRequired = int(request.form['places'])
     competition['numberOfPlaces'] = int(competition['numberOfPlaces'])-placesRequired
-    # BUG Fix: Point updates are not reflected
-    club['points'] = int(club['points'])-placesRequired
+    # Updated: 3 points per place rather than 1 point per place
+    club['points'] = int(club['points'])-3*placesRequired
     flash('Great-booking complete!')
     return render_template('welcome.html', club=club, competitions=competitions)
 
